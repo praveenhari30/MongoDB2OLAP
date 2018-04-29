@@ -96,7 +96,7 @@ if __name__ == '__main__':
     performHousekeeping(engine)
     
     """
-    Inserting data values into mysql database
+    Inserting data values into Dimensions of the mysql database
     """
     #Merging customerDF with saleDF to get only those customers who are in our sales transaction file
     cust_sale = pd.merge(customerDF, saleDF, left_on='LoyaltyCardNum', right_on='LoyaltyCardNumber',how = 'inner')
@@ -109,17 +109,20 @@ if __name__ == '__main__':
     storeDF[['StoreNum','StoreName','ActiveFlag','SqFoot','ClusterName']].to_sql('StoreJunkDim', engine, if_exists='append', index=False)
     
     #Inserting data into StoreLocationDim
-    storeDF[['Region','StateCode','City','ZipCode','AddressLine1']].drop_duplicates(keep='first').to_sql('StoreLocationDim', engine, if_exists='append', index=False)
+    StoreLocationDim = storeDF[['Region','StateCode','City','ZipCode','AddressLine1']].drop_duplicates(keep='first')
+    StoreLocationDim.to_sql('StoreLocationDim', engine, if_exists='append', index=False)
 
     #Merging itemListDF and saleDF to get only those items which are in our sales
-    item_sale = pd.merge(itemListDF, saleDf, left_on=['UPC','ItemID']), right_on=['UPC','ItemID'], how ='inner')
+    item_sale = pd.merge(itemListDF, saleDF, left_on=['UPC','ItemID'], right_on=['UPC','ItemID'], how ='inner')
 
     #Inserting data into ItemListDim
-    itemListDF[['UPC','ItemID','LongDes','ShortDes','ExtraDes']].drop_duplicates(keep='first').to_sql('ItemListDim', engine, if_exists='append', index=False)
+    ItemListDim = item_sale[['UPC','ItemID','LongDes','ShortDes','ExtraDes']].drop_duplicates(keep='first')
+    ItemListDim.to_sql('ItemListDim', engine, if_exists='append', index=False)
     
     #Inserting data into 
-    itemListDF[['DepartmentCode','FamilyCode','FamilyDes','CategoryCode','CategoryDes','ClassCode','ClassDes']].drop_duplicates(keep='first').to_sql('ItemHierarchyDim', engine, if_exists='append', index=False)
+    ItemHierarchyDim = item_sale[['DepartmentCode','FamilyCode','FamilyDes','CategoryCode','CategoryDes','ClassCode','ClassDes']].drop_duplicates(keep='last').astype(str)
+    ItemHierarchyDim.to_sql('ItemHierarchyDim', engine, if_exists='append', index=False)
     
     #Inserting data into ItemJunkDim
-    itemListDF[['StoreBrand','Status']].drop_duplicates(keep='first').to_sql('ItemJunkDim', engine, if_exists='append', index=False)
-
+    ItemJunkDim = item_sale[['StoreBrand','Status']].drop_duplicates(keep='first')
+    ItemJunkDim.to_sql('ItemJunkDim', engine, if_exists='append', index=False)
