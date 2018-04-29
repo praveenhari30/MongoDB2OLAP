@@ -2,7 +2,7 @@
 """
 Created on Wed Apr 18 18:40:43 2018
 
-@author: Vinod, Saran
+@author: Vinod
 """
 
 import pandas as pd
@@ -10,6 +10,7 @@ import numpy as np
 from pymongo import MongoClient
 from datetime import datetime
 from datetime import timedelta
+import os
 
 def cleanSalesTrx(path,filename):
     """
@@ -153,7 +154,7 @@ def connectToMongo(hostname,port):
     mongoConnect = MongoClient(host='127.0.0.1',port=27017)
     return mongoConnect
 
-def insertIntoMongo(database,collection,mongo_conn,df):
+def insertIntoMongoDF(database,collection,mongo_conn,df):
     """
     This function insert the data into appropriate collection in mongo DB
     """
@@ -161,6 +162,15 @@ def insertIntoMongo(database,collection,mongo_conn,df):
     db.get_collection(collection).drop()
     db.create_collection(collection)
     db.get_collection(collection).insert_many(df.to_dict(orient='record'))
+    
+def insertIntoMongoDict(database,collection,mongo_conn,records):
+    """
+    This function insert the data into appropriate collection in mongo DB
+    """
+    db = mongo_conn.get_database(database)
+    db.get_collection(collection).drop()
+    db.create_collection(collection)
+    db.get_collection(collection).insert_many(records)
 
 def loadHierarchy(df,conn,database,collection):
     hierRecords=[{'UPC':df.loc[i,'UPC'],
@@ -199,10 +209,49 @@ def extractStoreLoc(path,filename):
     storeLoc = storeLoc.astype(store_loc_cols)
     storeLoc.drop(columns=['ExtraCol'],axis=1,inplace=True)
     return(storeLoc)
+
+def extractScrapedStore(path):
+    files = os.listdir(scrape_path)
+    storeScraped=pd.DataFrame([])
+    temp_cols = {'StoreName':str,
+             'StoreId':np.int64,
+             'LocationName':str,
+             'State':str,
+             'ZipCode':str,
+             'ServiceName':str,
+             'ServiceValue':str}
+    for file in files:
+        temp = pd.read_csv(scrape_path+file,
+                   header=None)
+        for i in range(0,len(temp.columns)):
+            for j in range(0,len(temp)):
+                temp.loc[j,i]=temp.loc[j,i][temp.loc[j,i].find(':')+1:]
+        temp.columns = temp_cols.keys()
+        temp = temp.astype(temp_cols)
+        storeScraped=pd.concat([storeScraped,temp],ignore_index=True)
+    
+    storeScraped = storeScraped.astype(temp_cols)
+    storeScraped.loc[~storeScraped['ServiceValue'].str.lower().isin(['true','false']),'ServiceValue'] = np.nan
+    storeRecords = []
+    for i in storeScraped.StoreId.unique():
+        df_subset = storeScraped[storeScraped.StoreId==i]
+        df_pivot = pd.pivot_table(data=df_subset,
+                        aggfunc=lambda x: x,
+                        columns='ServiceName',
+                        values='ServiceValue',
+                        index=['StoreId','StoreName','LocationName','State','ZipCode'])
+        df_pivot.reset_index(inplace=True)
+        rec_service = df_pivot.iloc[:,5:].to_dict(orient='record')[0]
+        rec = df_pivot.iloc[:,:5].to_dict(orient='record')[0]
+        rec['Service']=rec_service
+        storeRecords.append(rec)
+    return(storeRecords)
+    
     
 if __name__ == '__main__':
     
     PATH = 'C:/Users/Universe/Desktop/DataScience/Spring 2018/BI/Project/dataFiles/'
+    scrape_path = 'C:/Users/Universe/Desktop/DataScience/Spring 2018/BI/Project/dataFiles/scraping/'
     SalesFile = 'sls_dtl.txt'
     ItemAttrFile = 'Item_Attr.txt'
     CustFile = 'customer_List.txt'
@@ -215,14 +264,17 @@ if __name__ == '__main__':
     custDF = extractCustomer(PATH,CustFile)
     itemListDF = extractItemList(PATH,ItemListFile)
     storeLocDF = extractStoreLoc(PATH,StoreLocFile)
-    
+    DF = extractScrapedStore(scrape_path)
+        
     conn_obj = connectToMongo(hostname='127.0.0.1',port=27017)
-    insertIntoMongo('BIProject','SalesTrx',conn_obj,salesDF)
-    insertIntoMongo('BIProject','ItemAttribute',conn_obj,itemAttrDF)
-    insertIntoMongo('BIProject','Customer',conn_obj,custDF)
-    insertIntoMongo('BIProject','ItemList',conn_obj,itemListDF)
+    insertIntoMongoDF('BIProject','SalesTrx',conn_obj,salesDF)
+    insertIntoMongoDF('BIProject','ItemAttribute',conn_obj,itemAttrDF)
+    insertIntoMongoDF('BIProject','Customer',conn_obj,custDF)
+    insertIntoMongoDF('BIProject','ItemList',conn_obj,itemListDF)
     loadHierarchy(itemListDF,conn_obj,'BIProject','ItemHierarchy')
-    insertIntoMongo('BIProject','StoreLocation',conn_obj,storeLocDF)
+    insertIntoMongoDF('BIProject','StoreLocation',conn_obj,storeLocDF)
+    insertIntoMongoDict('BIProject','StoreScraped',conn_obj,DF)
+    
     
 
 
