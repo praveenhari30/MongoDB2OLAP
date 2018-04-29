@@ -1,5 +1,3 @@
--- MySQL Workbench Forward Engineering
-
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
@@ -36,8 +34,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`TimeDim` (
   `TDK` INT NOT NULL AUTO_INCREMENT,
-  `Time(GMT)` TIME NULL,
-  `Time_char` CHAR(10) NULL,
+  `Time` TIME NULL,
   `Hour_24_int` INT(2) NULL,
   `Minute_int` INT(2) NULL,
   `Second_int` INT(2) NULL,
