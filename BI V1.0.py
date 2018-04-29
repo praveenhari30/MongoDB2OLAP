@@ -38,7 +38,7 @@ def extractSalesTrx(filename):
               'TransDatetime(Local)':str,
               'BusDate':'datetime64[ns]',
               'UPC':str,
-              'ItemID':str,
+              'ItemID':np.int64,
               'DeptNum':np.int64,
               'ItemQuantity':np.float64,
               'WeightAmt':np.float64,
@@ -118,7 +118,7 @@ def extractCustomer(path,filename):
 
 def extractItemList(path,filename):
     item_cols = {"UPC":str,
-            "ItemID":str,
+            "ItemID":np.int64,
             "Status":np.int64,
             "LongDes":str,
             "ShortDes":str,
