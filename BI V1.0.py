@@ -52,6 +52,7 @@ def extractSalesTrx(filename):
     salesTrx = pd.read_csv(filename,
                      sep='|',
                      header=None,
+                     converters={6: str},
                      parse_dates= [[3,4],5])
     salesTrx=pd.concat([salesTrx.iloc[:,1:4],salesTrx.iloc[:,0],salesTrx.iloc[:,0].astype(str),salesTrx.iloc[:,4:]],axis=1)
     salesTrx.columns=sales_cols.keys()
