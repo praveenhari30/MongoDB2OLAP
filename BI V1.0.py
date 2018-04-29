@@ -193,7 +193,7 @@ def extractStoreLoc(path,filename):
                 'AddressLine1':str,
                 'City':str,
                 'StateCode':str,
-                'ZipCode':str,
+                'ZipCode':np.int64,
                 'SqFoot':np.int64,
                 'Region':str,
                 'ClusterName':str,
