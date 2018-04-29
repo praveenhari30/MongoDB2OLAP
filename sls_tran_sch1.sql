@@ -50,7 +50,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`ItemListDim` (
   `ILDK` INT NOT NULL AUTO_INCREMENT,
   `UPC` CHAR(20) NULL,
-  `ItemID` CHAR(20) NULL,
+  `ItemID` INT NULL,
   `LongDes` CHAR(80) NULL,
   `ShortDes` CHAR(80) NULL,
   `ExtraDes` CHAR(80) NULL,
