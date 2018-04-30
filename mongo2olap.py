@@ -60,7 +60,8 @@ def performHousekeeping(engine):
     This function deletes all data records from the database table
     """
     list1 = ['DateDim','TimeDim','ItemListDim','ItemJunkDim','ItemHierarchyDim','StoreJunkDim',
-             'StoreLocationDim','SalesJunkDim','CustomerDim','ItemAttributesDim','trans_fact']
+             'StoreLocationDim','SalesJunkDim','CustomerDim','ItemAttributesDim','StoreServiceDim',
+             'trans_fact']
     for i in list1:
         engine.execute('delete from '+i)
         
