@@ -66,6 +66,9 @@ def performHousekeeping(engine):
         engine.execute('delete from '+i)
         
 def getEmbedded(mongo_data):
+    """
+    This function is to convert nested documents from mongoDB to DataFrames
+    """
     sanitized = json.loads(json_util.dumps(mongo_data))
     normalized = json_normalize(sanitized)
     df = pd.DataFrame(normalized)
