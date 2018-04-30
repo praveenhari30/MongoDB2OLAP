@@ -1,3 +1,5 @@
+-- MySQL Workbench Forward Engineering
+
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
@@ -74,12 +76,12 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`ItemHierarchyDim` (
   `IHDK` INT NOT NULL AUTO_INCREMENT,
-  `DepartmentCode` INT NULL,
-  `FamilyCode` INT NULL,
+  `DepartmentCode` CHAR(15) NULL,
+  `FamilyCode` CHAR(15) NULL,
   `FamilyDes` CHAR(50) NULL,
-  `CategoryCode` INT NULL,
+  `CategoryCode` CHAR(15) NULL,
   `CategoryDes` CHAR(50) NULL,
-  `ClassCode` INT NULL,
+  `ClassCode` CHAR(15) NULL,
   `ClassDes` CHAR(50) NULL,
   PRIMARY KEY (`IHDK`))
 ENGINE = InnoDB;
@@ -157,6 +159,52 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `sls_tran_sch1`.`StoreServiceDim`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`StoreServiceDim` (
+  `SSDK` INT NOT NULL AUTO_INCREMENT,
+  `StoreNum` INT NULL,
+  `StoreType` CHAR(25) NULL,
+  `WesternUnion` CHAR(6) NULL,
+  `WellsFargoBank` CHAR(6) NULL,
+  `WalkInClinic` CHAR(6) NULL,
+  `TicketSales` CHAR(6) NULL,
+  `TeamSpiritShop` CHAR(6) NULL,
+  `Sushi` CHAR(6) NULL,
+  `SaladBar` CHAR(6) NULL,
+  `RugDoctor` CHAR(6) NULL,
+  `Restaurant` CHAR(6) NULL,
+  `RedBox` CHAR(6) NULL,
+  `MeatMarket` CHAR(6) NULL,
+  `MealsForTwo` CHAR(6) NULL,
+  `Lottery` CHAR(6) NULL,
+  `LivingWellDept` CHAR(6) NULL,
+  `KevaJuice` CHAR(6) NULL,
+  `HotDeli` CHAR(6) NULL,
+  `HerringNationalBank` CHAR(6) NULL,
+  `FullServiceSeafood` CHAR(6) NULL,
+  `Floral` CHAR(6) NULL,
+  `FirstFinancialBank` CHAR(6) NULL,
+  `DishGiftCenter` CHAR(6) NULL,
+  `Deli` CHAR(6) NULL,
+  `DMVregistration` CHAR(6) NULL,
+  `Concierge` CHAR(6) NULL,
+  `CoffeeShop` CHAR(6) NULL,
+  `ClearTalk` CHAR(6) NULL,
+  `CityBank` CHAR(6) NULL,
+  `CheckCashing` CHAR(6) NULL,
+  `BulkFoods` CHAR(6) NULL,
+  `BoarsHead` CHAR(6) NULL,
+  `BillPay` CHAR(6) NULL,
+  `Bakery` CHAR(6) NULL,
+  `AngusBeef` CHAR(6) NULL,
+  `AmarilloNationalBank` CHAR(6) NULL,
+  `Alcohol` CHAR(6) NULL,
+  PRIMARY KEY (`SSDK`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `sls_tran_sch1`.`trans_fact`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
@@ -170,6 +218,7 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
   `CustomerDim_CDK` INT NOT NULL,
   `ItemAttributeDim_IADK` INT NOT NULL,
   `StoreJunkDim_SJDK` INT NOT NULL,
+  `StoreServiceDim_SSDK` INT NOT NULL,
   `BusDate` DATETIME NULL,
   `TransNum` INT NULL,
   `ItemQuantity` DECIMAL(5,2) NULL,
@@ -186,6 +235,7 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
   INDEX `fk_trans_fact_1_CustomerDim1_idx` (`CustomerDim_CDK` ASC),
   INDEX `fk_trans_fact1_ItemAttributeDim1_idx` (`ItemAttributeDim_IADK` ASC),
   INDEX `fk_trans_fact_StoreJunkDim1_idx` (`StoreJunkDim_SJDK` ASC),
+  INDEX `fk_trans_fact_StoreServiceDim1_idx` (`StoreServiceDim_SSDK` ASC),
   CONSTRAINT `fk_table1_DateDim`
     FOREIGN KEY (`DateDim_DDK`)
     REFERENCES `sls_tran_sch1`.`DateDim` (`DDK`)
@@ -234,6 +284,11 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
   CONSTRAINT `fk_trans_fact_StoreJunkDim1`
     FOREIGN KEY (`StoreJunkDim_SJDK`)
     REFERENCES `sls_tran_sch1`.`StoreJunkDim` (`SJDK`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_trans_fact_StoreServiceDim1`
+    FOREIGN KEY (`StoreServiceDim_SSDK`)
+    REFERENCES `sls_tran_sch1`.`StoreServiceDim` (`SSDK`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
