@@ -74,27 +74,6 @@ def getEmbedded(mongo_data):
     df = pd.DataFrame(normalized)
     return df
 
-#Extracting scraped data at mongoDB
-DF = getEmbedded(getCollection('BIProject','StoreScraped', conn_obj))
-
-scrapedDF = DF[['Service.Alcohol','Service.Amarillo National Bank','Service.Angus Beef',
-              'Service.Bakery','Service.Bill Pay','Service.Boars Head','Service.Bulk Foods',
-              'Service.Check Cashing','Service.City Bank','Service.Clear Talk','Service.Coffee Shop',
-              'Service.Concierge','Service.DMV Registration','Service.Deli','Service.Dish Gift Center',
-              'Service.First Financial Bank','Service.Floral','Service.Full Service Seafood','Service.Herring National Bank',
-              'Service.Hot Deli','Service.Keva Juice','Service.Living Well Dept','Service.Lottery','Service.Meals For Two','Service.Meat Market',
-              'Service.Red Box','Service.Restaurant','Service.Rug Doctor','Service.Salad Bar','Service.Sushi','Service.Team Spirit Shop','Service.Ticket Sales','Service.Walk-in Clinic',
-              'Service.Wells Fargo Bank','Service.Western Union','StoreId','StoreName']]
-
-scrapedDF.rename(columns={'Service.Alcohol':'Alcohol','Service.Amarillo National Bank':'AmarilloNationalBank','Service.Angus Beef':'AngusBeef',
-              'Service.Bakery':'Bakery','Service.Bill Pay':'BillPay','Service.Boars Head':'BoarsHead','Service.Bulk Foods':'BulkFoods',
-              'Service.Check Cashing':'CheckCashing','Service.City Bank':'CityBank','Service.Clear Talk':'ClearTalk','Service.Coffee Shop':'CoffeeShop',
-              'Service.Concierge':'Concierge','Service.DMV Registration':'DMVregistration','Service.Deli':'Deli','Service.Dish Gift Center':'DishGiftCenter',
-              'Service.First Financial Bank':'FirstFinancialBank','Service.Floral':'Floral','Service.Full Service Seafood':'FullServiceSeafood','Service.Herring National Bank':'HerringNationalBank',
-              'Service.Hot Deli':'HotDeli','Service.Keva Juice':'KevaJuice','Service.Living Well Dept':'LivingWellDept','Service.Lottery':'Lottery','Service.Meals For Two':'MealsForTwo','Service.Meat Market':'MeatMarket',
-              'Service.Red Box':'RedBox','Service.Restaurant':'Restaurant','Service.Rug Doctor':'RugDoctor','Service.Salad Bar':'SaladBar','Service.Sushi':'Sushi','Service.Team Spirit Shop':'TeamSpiritShop','Service.Ticket Sales':'TicketSales','Service.Walk-in Clinic':'WalkInClinic',
-              'Service.Wells Fargo Bank':'WellsFargoBank','Service.Western Union':'WesternUnion','StoreId':'StoreNum','StoreName':'StoreType'},inplace=True)
-
 if __name__ == '__main__':
     #Creating a mongoDB connection object
     conn_obj = connectToMongo(hostname='127.0.0.1',port=27017)
@@ -129,6 +108,28 @@ if __name__ == '__main__':
     saleDF = convertToDF(getSalesTrx(start, end,store,'BIProject','SalesTrx',conn_obj))
     print(saleDF.dtypes)
     print(saleDF.isna().sum())
+    
+    #Extracting scraped data at mongoDB
+    DF = getEmbedded(getCollection('BIProject','StoreScraped', conn_obj))
+
+    scrapedDF = DF[['Service.Alcohol','Service.Amarillo National Bank','Service.Angus Beef',
+                  'Service.Bakery','Service.Bill Pay','Service.Boars Head','Service.Bulk Foods',
+                  'Service.Check Cashing','Service.City Bank','Service.Clear Talk','Service.Coffee Shop',
+                  'Service.Concierge','Service.DMV Registration','Service.Deli','Service.Dish Gift Center',
+                  'Service.First Financial Bank','Service.Floral','Service.Full Service Seafood','Service.Herring National Bank',
+                  'Service.Hot Deli','Service.Keva Juice','Service.Living Well Dept','Service.Lottery','Service.Meals For Two','Service.Meat Market',
+                  'Service.Red Box','Service.Restaurant','Service.Rug Doctor','Service.Salad Bar','Service.Sushi','Service.Team Spirit Shop','Service.Ticket Sales','Service.Walk-in Clinic',
+                  'Service.Wells Fargo Bank','Service.Western Union','StoreId','StoreName']]
+
+    scrapedDF.rename(columns={'Service.Alcohol':'Alcohol','Service.Amarillo National Bank':'AmarilloNationalBank','Service.Angus Beef':'AngusBeef',
+                  'Service.Bakery':'Bakery','Service.Bill Pay':'BillPay','Service.Boars Head':'BoarsHead','Service.Bulk Foods':'BulkFoods',
+                  'Service.Check Cashing':'CheckCashing','Service.City Bank':'CityBank','Service.Clear Talk':'ClearTalk','Service.Coffee Shop':'CoffeeShop',
+                  'Service.Concierge':'Concierge','Service.DMV Registration':'DMVregistration','Service.Deli':'Deli','Service.Dish Gift Center':'DishGiftCenter',
+                  'Service.First Financial Bank':'FirstFinancialBank','Service.Floral':'Floral','Service.Full Service Seafood':'FullServiceSeafood','Service.Herring National Bank':'HerringNationalBank',
+                  'Service.Hot Deli':'HotDeli','Service.Keva Juice':'KevaJuice','Service.Living Well Dept':'LivingWellDept','Service.Lottery':'Lottery','Service.Meals For Two':'MealsForTwo','Service.Meat Market':'MeatMarket',
+                  'Service.Red Box':'RedBox','Service.Restaurant':'Restaurant','Service.Rug Doctor':'RugDoctor','Service.Salad Bar':'SaladBar','Service.Sushi':'Sushi','Service.Team Spirit Shop':'TeamSpiritShop','Service.Ticket Sales':'TicketSales','Service.Walk-in Clinic':'WalkInClinic',
+                  'Service.Wells Fargo Bank':'WellsFargoBank','Service.Western Union':'WesternUnion','StoreId':'StoreNum','StoreName':'StoreType'},inplace=True)
+
     
     """
     Create a mysql database connection
