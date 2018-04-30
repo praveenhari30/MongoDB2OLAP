@@ -136,7 +136,7 @@ if __name__ == '__main__':
     """
     Create a mysql database connection
     """
-    engine = connectMySQL('root', 'password', 'localhost', 'sls_tran_sch1')
+    engine = connectMySQL('oishee', '123456', 'localhost', 'sls_tran_sch1')
     
     #Delete all data from all tables in the database
     performHousekeeping(engine)
@@ -178,6 +178,7 @@ if __name__ == '__main__':
     
     # Date Dimension 
     temp = pd.DatetimeIndex(saleDF['TransDatetime(GMT)'])
+    saleDF['Date'] = saleDF['TransDatetime(GMT)']
     saleDF['Year_int'] = temp.year
     saleDF['Month_int'] = temp.month
     saleDF['Month_abbr'] = saleDF['Month_int'].apply(lambda x: calendar.month_abbr[x])
@@ -186,11 +187,11 @@ if __name__ == '__main__':
     saleDF['DayOfWeek_char'] = saleDF['DayOfWeek_int'].astype(str)
     saleDF['DayOfYear_int'] = temp.dayofyear
     
-    saleDF[['TransDatetime(GMT)','Year_int','Month_int','Month_abbr','Day_int','DayOfWeek_int','DayOfWeek_char',
+    saleDF[['Date','Year_int','Month_int','Month_abbr','Day_int','DayOfWeek_int','DayOfWeek_char',
             'DayOfYear_int']].drop_duplicates(keep='first').to_sql('DateDim', engine, if_exists='append', index=False)
 
     #Time Dimension 
-    saleDF['Time_hhmmss_char'] = temp.time.astype(str)
+    saleDF['Time'] = temp.time.astype(str)
     saleDF['Hour_24_int'] = temp.hour
     saleDF['Minute_int'] = temp.minute
     saleDF['Second_int'] = temp.second
@@ -198,7 +199,7 @@ if __name__ == '__main__':
     saleDF['Hour_12_int'] = pd.DatetimeIndex(temp_12hour).hour
     #print(saleDF)
    
-    saleDF[['Time_hhmmss_char','Hour_24_int','Minute_int','Second_int','Hour_12_int']].drop_duplicates(keep='first').to_sql('TimeDim', engine, if_exists='append', index=False)
+    saleDF[['Time','Hour_24_int','Minute_int','Second_int','Hour_12_int']].drop_duplicates(keep='first').to_sql('TimeDim', engine, if_exists='append', index=False)
     
     
 
