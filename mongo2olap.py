@@ -9,7 +9,9 @@ Created on Sat Apr 28 11:37:54 2018
 import pandas as pd
 from pymongo import MongoClient
 from datetime import datetime
+from datetime import timedelta
 from sqlalchemy import create_engine
+import calendar
 #import mysql.connector
 import json
 from bson import json_util, ObjectId
@@ -173,3 +175,31 @@ if __name__ == '__main__':
     
     #Inserting into scraped StoreServicesDim
     scrapedDF.to_sql('StoreServiceDim', engine, if_exists='append', index=False)
+    
+    # Date Dimension 
+    temp = pd.DatetimeIndex(saleDF['TransDatetime(GMT)'])
+    saleDF['Year_int'] = temp.year
+    saleDF['Month_int'] = temp.month
+    saleDF['Month_abbr'] = saleDF['Month_int'].apply(lambda x: calendar.month_abbr[x])
+    saleDF['Day_int'] = temp.day
+    saleDF['DayOfWeek_int'] = temp.dayofweek
+    saleDF['DayOfWeek_char'] = saleDF['DayOfWeek_int'].astype(str)
+    saleDF['DayOfYear_int'] = temp.dayofyear
+    
+    saleDF[['TransDatetime(GMT)','Year_int','Month_int','Month_abbr','Day_int','DayOfWeek_int','DayOfWeek_char',
+            'DayOfYear_int']].drop_duplicates(keep='first').to_sql('DateDim', engine, if_exists='append', index=False)
+
+    #Time Dimension 
+    saleDF['Time_hhmmss_char'] = temp.time.astype(str)
+    saleDF['Hour_24_int'] = temp.hour
+    saleDF['Minute_int'] = temp.minute
+    saleDF['Second_int'] = temp.second
+    temp_12hour = saleDF['TransDatetime(GMT)'] + timedelta(hours=12)
+    saleDF['Hour_12_int'] = pd.DatetimeIndex(temp_12hour).hour
+    #print(saleDF)
+   
+    saleDF[['Time_hhmmss_char','Hour_24_int','Minute_int','Second_int','Hour_12_int']].drop_duplicates(keep='first').to_sql('TimeDim', engine, if_exists='append', index=False)
+    
+    
+
+
