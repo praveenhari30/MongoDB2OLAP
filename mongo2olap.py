@@ -11,6 +11,9 @@ from pymongo import MongoClient
 from datetime import datetime
 from sqlalchemy import create_engine
 #import mysql.connector
+import json
+from bson import json_util, ObjectId
+from pandas.io.json import json_normalize
 
 def connectToMongo(hostname,port):
     """
@@ -60,28 +63,62 @@ def performHousekeeping(engine):
              'StoreLocationDim','SalesJunkDim','CustomerDim','ItemAttributesDim','trans_fact']
     for i in list1:
         engine.execute('delete from '+i)
+        
+def getEmbedded(mongo_data):
+    sanitized = json.loads(json_util.dumps(mongo_data))
+    normalized = json_normalize(sanitized)
+    df = pd.DataFrame(normalized)
+    return df
+
+#Extracting scraped data at mongoDB
+DF = getEmbedded(getCollection('BIProject','StoreScraped', conn_obj))
+
+scrapedDF = DF[['Service.Alcohol','Service.Amarillo National Bank','Service.Angus Beef',
+              'Service.Bakery','Service.Bill Pay','Service.Boars Head','Service.Bulk Foods',
+              'Service.Check Cashing','Service.City Bank','Service.Clear Talk','Service.Coffee Shop',
+              'Service.Concierge','Service.DMV Registration','Service.Deli','Service.Dish Gift Center',
+              'Service.First Financial Bank','Service.Floral','Service.Full Service Seafood','Service.Herring National Bank',
+              'Service.Hot Deli','Service.Keva Juice','Service.Living Well Dept','Service.Lottery','Service.Meals For Two','Service.Meat Market',
+              'Service.Red Box','Service.Restaurant','Service.Rug Doctor','Service.Salad Bar','Service.Sushi','Service.Team Spirit Shop','Service.Ticket Sales','Service.Walk-in Clinic',
+              'Service.Wells Fargo Bank','Service.Western Union','StoreId','StoreName']]
+
+scrapedDF.rename(columns={'Service.Alcohol':'Alcohol','Service.Amarillo National Bank':'AmarilloNationalBank','Service.Angus Beef':'AngusBeef',
+              'Service.Bakery':'Bakery','Service.Bill Pay':'BillPay','Service.Boars Head':'BoarsHead','Service.Bulk Foods':'BulkFoods',
+              'Service.Check Cashing':'CheckCashing','Service.City Bank':'CityBank','Service.Clear Talk':'ClearTalk','Service.Coffee Shop':'CoffeeShop',
+              'Service.Concierge':'Concierge','Service.DMV Registration':'DMVregistration','Service.Deli':'Deli','Service.Dish Gift Center':'DishGiftCenter',
+              'Service.First Financial Bank':'FirstFinancialBank','Service.Floral':'Floral','Service.Full Service Seafood':'FullServiceSeafood','Service.Herring National Bank':'HerringNationalBank',
+              'Service.Hot Deli':'HotDeli','Service.Keva Juice':'KevaJuice','Service.Living Well Dept':'LivingWellDept','Service.Lottery':'Lottery','Service.Meals For Two':'MealsForTwo','Service.Meat Market':'MeatMarket',
+              'Service.Red Box':'RedBox','Service.Restaurant':'Restaurant','Service.Rug Doctor':'RugDoctor','Service.Salad Bar':'SaladBar','Service.Sushi':'Sushi','Service.Team Spirit Shop':'TeamSpiritShop','Service.Ticket Sales':'TicketSales','Service.Walk-in Clinic':'WalkInClinic',
+              'Service.Wells Fargo Bank':'WellsFargoBank','Service.Western Union':'WesternUnion','StoreId':'StoreNum','StoreName':'StoreType'},inplace=True)
 
 if __name__ == '__main__':
-    
+    #Creating a mongoDB connection object
     conn_obj = connectToMongo(hostname='127.0.0.1',port=27017)
     
-    #Get data from Mongo
+    """
+    Get data from Mongo
+    """
+    #Collect data from StoreLocation collection at mongoDB
     storeDF = convertToDF(getCollection('BIProject','StoreLocation',conn_obj))
     print(storeDF.dtypes)
     print(storeDF.isna().sum()) 
     
+    #Collect data from ItemAttribute collection at mongoDB
     itemAttrDF = convertToDF(getCollection('BIProject','ItemAttribute',conn_obj))
     print(itemAttrDF.dtypes)
     print(itemAttrDF.isna().sum()) 
     
+    #Collect data from ItemList collection at mongoDB
     itemListDF = convertToDF(getCollection('BIProject','ItemList',conn_obj))
     print(itemListDF.dtypes)
     print(itemListDF.isna().sum()) 
     
+    #Collect data from Customer collection at mongoDB
     customerDF = convertToDF(getCollection('BIProject','Customer',conn_obj))
     print(customerDF.dtypes)
     print(customerDF.isna().sum()) 
     
+    #Collect data from SalesTrx collection at mongoDB between specific transaction dates at a particular store
     start = '2014-02-22 00:00:00'
     end = '2014-02-23 00:00:00'
     store = 562
@@ -89,7 +126,9 @@ if __name__ == '__main__':
     print(saleDF.dtypes)
     print(saleDF.isna().sum())
     
-    # Create a mysql database connection
+    """
+    Create a mysql database connection
+    """
     engine = connectMySQL('root', 'password', 'localhost', 'sls_tran_sch1')
     
     #Delete all data from all tables in the database
@@ -126,3 +165,6 @@ if __name__ == '__main__':
     #Inserting data into ItemJunkDim
     ItemJunkDim = item_sale[['StoreBrand','Status']].drop_duplicates(keep='first')
     ItemJunkDim.to_sql('ItemJunkDim', engine, if_exists='append', index=False)
+    
+    #Inserting into scraped StoreServicesDim
+    scrapedDF.to_sql('StoreServiceDim', engine, if_exists='append', index=False)
