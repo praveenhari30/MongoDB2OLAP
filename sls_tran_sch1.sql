@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`DateDim` (
   `Year_int` INT(4) NULL,
   `Month_int` INT(2) NULL,
   `Month_abbr` CHAR(3) NULL,
-  `Day_int(2)` INT(2) NULL,
+  `Day_int` INT(2) NULL,
   `DayOfWeek_int` INT(1) NULL,
   `DayOfWeek_char` CHAR(10) NULL,
   `DayOfYear_int` INT(3) NULL,
@@ -150,6 +150,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`ItemAttributesDim` (
   `IADK` INT NOT NULL AUTO_INCREMENT,
+  `UPC` CHAR(20) NULL,
   `ItemAttributeDes` CHAR(80) NULL,
   `ItemAttributeValue` CHAR(45) NULL,
   `AttributeStartDate` DATETIME NULL,
@@ -157,6 +158,25 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`ItemAttributesDim` (
   PRIMARY KEY (`IADK`))
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `sls_tran_sch1`.`ItemBridge`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`ItemBridge` (
+  `ItemAttribute_IADK` INT NOT NULL,
+  `ItemList_ILDK` INT NOT NULL,
+  INDEX `fk_ItemBridge_ItemList_idx` (`ItemList_ILDK` ASC),
+  INDEX `fk_ItemBridge_ItemAttribute_idx` (`ItemAttribute_IADK` ASC),
+  CONSTRAINT `fk_table1_ItemListDim2`
+    FOREIGN KEY (`ItemList_ILDK`)
+    REFERENCES `sls_tran_sch1`.`ItemListDim` (`ILDK`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_table1_ItemListAttributes1`
+    FOREIGN KEY (`ItemAttribute_IADK`)
+    REFERENCES `sls_tran_sch1`.`ItemAttributesDim` (`IADK`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `sls_tran_sch1`.`StoreServiceDim`
@@ -216,7 +236,6 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
   `StoreLocationDim_SLDK` INT NOT NULL,
   `SalesJunkDim_SJDK` INT NOT NULL,
   `CustomerDim_CDK` INT NOT NULL,
-  `ItemAttributeDim_IADK` INT NOT NULL,
   `StoreJunkDim_SJDK` INT NOT NULL,
   `StoreServiceDim_SSDK` INT NOT NULL,
   `BusDate` DATETIME NULL,
@@ -233,7 +252,6 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
   INDEX `fk_table1_StoreLocationDim1_idx` (`StoreLocationDim_SLDK` ASC),
   INDEX `fk_table1_SalesJunkDim1_idx` (`SalesJunkDim_SJDK` ASC),
   INDEX `fk_trans_fact_1_CustomerDim1_idx` (`CustomerDim_CDK` ASC),
-  INDEX `fk_trans_fact1_ItemAttributeDim1_idx` (`ItemAttributeDim_IADK` ASC),
   INDEX `fk_trans_fact_StoreJunkDim1_idx` (`StoreJunkDim_SJDK` ASC),
   INDEX `fk_trans_fact_StoreServiceDim1_idx` (`StoreServiceDim_SSDK` ASC),
   CONSTRAINT `fk_table1_DateDim`
@@ -274,11 +292,6 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
   CONSTRAINT `fk_trans_fact_1_CustomerDim1`
     FOREIGN KEY (`CustomerDim_CDK`)
     REFERENCES `sls_tran_sch1`.`CustomerDim` (`CDK`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_trans_fact1_ItemAttributeDim1`
-    FOREIGN KEY (`ItemAttributeDim_IADK`)
-    REFERENCES `sls_tran_sch1`.`ItemAttributesDim` (`IADK`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_trans_fact_StoreJunkDim1`
