@@ -50,7 +50,7 @@ print("itemsinsales : " + str(len(itemsinsales)))
 itemattrinitems = pd.merge(itemattrdf, itemdf, left_on='UPC', right_on='UPC',how = 'inner')
 print("itemattrinitems : " + str(len(itemattrinitems)))
 
-engine = create_engine('mysql+mysqlconnector://Praveen:Vijayam3@@localhost/NoSQLtoOLAP')
+engine = create_engine('mysql+mysqlconnector://username:password@localhost/NoSQLtoOLAP')
 
 engine.execute('delete from DateDim')
 engine.execute('Delete from TimeDim')
