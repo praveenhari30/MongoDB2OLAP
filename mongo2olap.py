@@ -144,7 +144,7 @@ if __name__ == '__main__':
     """
     Create a mysql database connection
     """
-    engine = connectMySQL('Praveen', 'Vijayam3@', 'localhost', 'sls_tran_sch1')
+    engine = connectMySQL('username', 'password', 'localhost', 'sls_tran_sch1')
 
     #Delete all data from all tables in the database
     performHousekeeping(engine)
