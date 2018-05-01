@@ -81,6 +81,10 @@ if __name__ == '__main__':
     #Creating a mongoDB connection object
     conn_obj = connectToMongo(hostname='127.0.0.1',port=27017)
 
+    unknowncustrecord = dict({"LoyaltyCardNum":-999,"HouseholdNum":-999,"MemberFavStore":-999,"City":'-999',"State":'-999',"ZipCode":'-999'})
+    unknowncustomer = conn_obj.get_database('BIProject').get_collection('Customer').insert_one(unknowncustrecord)
+
+
     """
     Get data from Mongo
     """

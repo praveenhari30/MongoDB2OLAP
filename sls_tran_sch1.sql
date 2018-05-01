@@ -241,7 +241,7 @@ CREATE TABLE IF NOT EXISTS `sls_tran_sch1`.`trans_fact` (
   `BusDate` DATETIME NULL,
   `TransNum` INT NULL,
   `ItemQuantity` DECIMAL(5,2) NULL,
-  `WeightAmt` DECIMAL(5,2) NULL,
+  `WeightAmt` DECIMAL(10,4) NULL,
   `SalesAmt` DECIMAL(5,2) NULL,
   `CostAmt` DECIMAL(5,2) NULL,
   INDEX `fk_table1_DateDim_idx` (`DateDim_DDK` ASC),
